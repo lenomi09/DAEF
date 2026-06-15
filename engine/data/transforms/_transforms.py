@@ -91,26 +91,41 @@ class RandomIoUCrop(T.RandomIoUCrop):
         return super().forward(*inputs)
      
 
-@register()    
-class ConvertBoxes(T.Transform):   
+@register()
+class ConvertBoxes(T.Transform):
     _transformed_types = (
-        BoundingBoxes,    
+        BoundingBoxes,
     )
-    def __init__(self, fmt='', normalize=False) -> None:
-        super().__init__()     
+
+    def __init__(self, fmt='', normalize=False):
+        super().__init__()
         self.fmt = fmt
-        self.normalize = normalize     
-     
-    def _transform(self, inpt: Any, params: Dict[str, Any]) -> Any:  
-        spatial_size = getattr(inpt, _boxes_keys[1])   
-        if self.fmt:  
-            in_fmt = inpt.format.value.lower()   
-            inpt = torchvision.ops.box_convert(inpt, in_fmt=in_fmt, out_fmt=self.fmt.lower()) 
-            inpt = convert_to_tv_tensor(inpt, key='boxes', box_format=self.fmt.upper(), spatial_size=spatial_size)   
+        self.normalize = normalize
+
+    def transform(self, inpt: Any, params: Dict[str, Any]) -> Any:
+        spatial_size = getattr(inpt, _boxes_keys[1])
+
+        if self.fmt:
+            in_fmt = inpt.format.value.lower()
+
+            inpt = torchvision.ops.box_convert(
+                inpt,
+                in_fmt=in_fmt,
+                out_fmt=self.fmt.lower()
+            )
+
+            inpt = convert_to_tv_tensor(
+                inpt,
+                key='boxes',
+                box_format=self.fmt.upper(),
+                spatial_size=spatial_size
+            )
 
         if self.normalize:
-            inpt = inpt / torch.tensor(spatial_size[::-1]).tile(2)[None]
-  
+            inpt = inpt / torch.tensor(
+                spatial_size[::-1]
+            ).tile(2)[None]
+
         return inpt
  
 
