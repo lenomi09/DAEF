@@ -97,14 +97,23 @@ class Compose(T.Compose):
                     elif (type(transform).__name__ == 'RandomZoomOut' or type(transform).__name__ == 'RandomIoUCrop') and with_mosaic:     
                         pass
                     else:
-                        sample = transform(sample) 
+                        try:
+                            sample = transform(sample)
+                        except Exception as e:
+                            print("\nFAILED TRANSFORM:", type(transform).__name__)
+                            print(transform)
+                            raise
         else:   # the default data scheduler
             for transform in self.transforms:
                 if type(transform).__name__ in policy_ops and cur_epoch >= policy_epoch: 
                     pass     
                 else:
-                    sample = transform(sample) 
-
+                    try:
+                        sample = transform(sample)
+                    except Exception as e:
+                        print("\nFAILED TRANSFORM:", type(transform).__name__)
+                        print(transform)
+                        raise
         return sample     
   
 
