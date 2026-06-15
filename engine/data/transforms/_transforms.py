@@ -114,24 +114,26 @@ class ConvertBoxes(T.Transform):
         return inpt
  
 
-@register()   
-class ConvertPILImage(T.Transform):     
+@register()
+class ConvertPILImage(T.Transform):
     _transformed_types = (
-        PIL.Image.Image,     
-    )  
-    def __init__(self, dtype='float32', scale=True) -> None:  
+        PIL.Image.Image,
+    )
+
+    def __init__(self, dtype='float32', scale=True):
         super().__init__()
         self.dtype = dtype
         self.scale = scale
-    
-    def _transform(self, inpt: Any, params: Dict[str, Any]) -> Any:   
-        inpt = F.pil_to_tensor(inpt)     
-        if self.dtype == 'float32': 
-            inpt = inpt.float()  
- 
-        if self.scale:  
+
+    def transform(self, inpt: Any, params: Dict[str, Any]) -> Any:
+        inpt = F.pil_to_tensor(inpt)
+
+        if self.dtype == 'float32':
+            inpt = inpt.float()
+
+        if self.scale:
             inpt = inpt / 255.
 
-        inpt = Image(inpt)   
-    
-        return inpt   
+        inpt = Image(inpt)
+
+        return inpt
